@@ -78,7 +78,9 @@ final class LessonSession {
     let lesson: Lesson
     private(set) var queue: [Item]
     private(set) var position = 0
-    var draft = Draft()
+    /// Eingaben je Übungsdurchgang (Item-ID). Getrennt gespeichert, damit eine Übung,
+    /// die gerade noch animiert ausblendet, nie die Eingaben der nächsten Übung liest.
+    private(set) var drafts: [String: Draft] = [:]
     private(set) var feedback: Feedback?
     private(set) var finished = false
     private(set) var doneUnits = 0
@@ -96,6 +98,15 @@ final class LessonSession {
     }
 
     var current: Item? { queue.indices.contains(position) ? queue[position] : nil }
+
+    /// Eingaben der aktuellen Übung.
+    var draft: Draft {
+        get { current.flatMap { drafts[$0.id] } ?? Draft() }
+        set { if let id = current?.id { drafts[id] = newValue } }
+    }
+
+    func draft(for itemID: String) -> Draft { drafts[itemID] ?? Draft() }
+    func setDraft(_ draft: Draft, for itemID: String) { drafts[itemID] = draft }
     var progress: Double { totalUnits == 0 ? 1 : Double(doneUnits) / Double(totalUnits) }
 
     var accuracy: Double {
@@ -152,7 +163,8 @@ final class LessonSession {
         case .cloze(let text, _):
             let gaps = Cloze.parse(text).gaps
             let correct = gaps.indices.allSatisfy { i in
-                guard let fill = draft.gapFills[i] else { return false }
+                guard draft.gapFills.indices.contains(i), let fill = draft.gapFills[i],
+                      draft.bank.indices.contains(fill) else { return false }
                 return AnswerMatcher.normalize(draft.bank[fill]) == AnswerMatcher.normalize(gaps[i])
             }
             resolve(exercise, attempt: attempt, correct: correct, answer: Cloze.solved(text))
@@ -215,10 +227,11 @@ final class LessonSession {
     }
 
     private func prepareDraft() {
-        if case .exercise(let exercise, _) = current {
-            draft = Draft.make(for: exercise)
+        guard let item = current, drafts[item.id] == nil else { return }
+        if case .exercise(let exercise, _) = item {
+            drafts[item.id] = Draft.make(for: exercise)
         } else {
-            draft = Draft()
+            drafts[item.id] = Draft()
         }
     }
 }

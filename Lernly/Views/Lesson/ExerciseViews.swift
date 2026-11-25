@@ -82,7 +82,7 @@ struct SingleChoiceView: View {
         VStack(alignment: .leading, spacing: 24) {
             ExerciseHeader(label: "Wähle die richtige Antwort", question: question, isRetry: isRetry)
             VStack(spacing: 12) {
-                ForEach(draft.optionOrder, id: \.self) { index in
+                ForEach(draft.optionOrder.filter(options.indices.contains), id: \.self) { index in
                     Button {
                         draft.choice = index
                     } label: {
@@ -114,7 +114,7 @@ struct MultipleChoiceView: View {
         VStack(alignment: .leading, spacing: 24) {
             ExerciseHeader(label: "Wähle alle richtigen Antworten", question: question, isRetry: isRetry)
             VStack(spacing: 12) {
-                ForEach(draft.optionOrder, id: \.self) { index in
+                ForEach(draft.optionOrder.filter(options.indices.contains), id: \.self) { index in
                     let selected = draft.multi.contains(index)
                     Button {
                         if selected { draft.multi.remove(index) } else { draft.multi.insert(index) }
@@ -288,10 +288,11 @@ struct ClozeView: View {
 
     @ViewBuilder
     private func gapView(_ index: Int) -> some View {
-        if let fill = draft.gapFills[index] {
+        if draft.gapFills.indices.contains(index), parsed.gaps.indices.contains(index),
+           let fill = draft.gapFills[index], draft.bank.indices.contains(fill) {
             let correct = AnswerMatcher.normalize(draft.bank[fill]) == AnswerMatcher.normalize(parsed.gaps[index])
             Button {
-                draft.gapFills[index] = nil
+                if draft.gapFills.indices.contains(index) { draft.gapFills[index] = nil }
             } label: {
                 Text(draft.bank[fill])
                     .font(.body.weight(.semibold))
@@ -323,9 +324,9 @@ struct OrderView: View {
             ExerciseHeader(label: "Bringe in die richtige Reihenfolge", question: question, isRetry: isRetry)
 
             VStack(spacing: 10) {
-                ForEach(Array(draft.orderPlaced.enumerated()), id: \.element) { position, index in
+                ForEach(Array(draft.orderPlaced.filter(items.indices.contains).enumerated()), id: \.element) { position, index in
                     Button {
-                        draft.orderPlaced.remove(at: position)
+                        draft.orderPlaced.removeAll { $0 == index }
                         draft.orderPool.append(index)
                     } label: {
                         HStack(spacing: 12) {
@@ -344,7 +345,7 @@ struct OrderView: View {
                     .disabled(locked)
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
                 }
-                ForEach(draft.orderPlaced.count..<items.count, id: \.self) { slot in
+                ForEach(min(draft.orderPlaced.count, items.count)..<items.count, id: \.self) { slot in
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6, 5]))
                         .foregroundStyle(Theme.border)
@@ -361,7 +362,7 @@ struct OrderView: View {
             if !draft.orderPool.isEmpty {
                 Divider()
                 VStack(spacing: 10) {
-                    ForEach(draft.orderPool, id: \.self) { index in
+                    ForEach(draft.orderPool.filter(items.indices.contains), id: \.self) { index in
                         Button {
                             draft.orderPool.removeAll { $0 == index }
                             draft.orderPlaced.append(index)
@@ -398,12 +399,12 @@ struct MatchView: View {
             ExerciseHeader(label: "Finde die Paare", question: question, isRetry: isRetry)
             HStack(alignment: .top, spacing: 12) {
                 VStack(spacing: 12) {
-                    ForEach(draft.leftOrder, id: \.self) { index in
+                    ForEach(draft.leftOrder.filter(pairs.indices.contains), id: \.self) { index in
                         tile(text: pairs[index].left, index: index, isLeft: true)
                     }
                 }
                 VStack(spacing: 12) {
-                    ForEach(draft.rightOrder, id: \.self) { index in
+                    ForEach(draft.rightOrder.filter(pairs.indices.contains), id: \.self) { index in
                         tile(text: pairs[index].right, index: index, isLeft: false)
                     }
                 }

@@ -92,34 +92,39 @@ struct LessonView: View {
         case .theory(let card, let index):
             TheoryCardView(card: card, number: index + 1, total: launch.lesson.theory.count, color: color)
         case .exercise(let exercise, let attempt):
-            exerciseView(exercise, isRetry: attempt > 0)
+            exerciseView(exercise, itemID: item.id, isRetry: attempt > 0)
         }
     }
 
     @ViewBuilder
-    private func exerciseView(_ exercise: Exercise, isRetry: Bool) -> some View {
-        let locked = session.feedback != nil
+    private func exerciseView(_ exercise: Exercise, itemID: String, isRetry: Bool) -> some View {
+        // Eine ausblendende (nicht mehr aktuelle) Übung bleibt gesperrt.
+        let locked = session.feedback != nil || session.current?.id != itemID
+        let draft = Binding(
+            get: { session.draft(for: itemID) },
+            set: { session.setDraft($0, for: itemID) }
+        )
         switch exercise.kind {
         case .singleChoice(let question, let options, let answer):
-            SingleChoiceView(question: question, options: options, answer: answer, draft: $session.draft, locked: locked, isRetry: isRetry)
+            SingleChoiceView(question: question, options: options, answer: answer, draft: draft, locked: locked, isRetry: isRetry)
         case .multipleChoice(let question, let options, let answers):
-            MultipleChoiceView(question: question, options: options, answers: answers, draft: $session.draft, locked: locked, isRetry: isRetry)
+            MultipleChoiceView(question: question, options: options, answers: answers, draft: draft, locked: locked, isRetry: isRetry)
         case .trueFalse(let statement, let answer):
-            TrueFalseView(statement: statement, answer: answer, draft: $session.draft, locked: locked, isRetry: isRetry)
+            TrueFalseView(statement: statement, answer: answer, draft: draft, locked: locked, isRetry: isRetry)
         case .input(let question, _):
-            InputExerciseView(question: question, draft: $session.draft, locked: locked, isRetry: isRetry) {
+            InputExerciseView(question: question, draft: draft, locked: locked, isRetry: isRetry) {
                 check()
             }
         case .cloze(let text, _):
-            ClozeView(text: text, draft: $session.draft, locked: locked, isRetry: isRetry)
+            ClozeView(text: text, draft: draft, locked: locked, isRetry: isRetry)
         case .order(let question, let items):
-            OrderView(question: question, items: items, draft: $session.draft, locked: locked, isRetry: isRetry)
+            OrderView(question: question, items: items, draft: draft, locked: locked, isRetry: isRetry)
         case .match(let question, let pairs):
-            MatchView(question: question, pairs: pairs, draft: $session.draft, locked: locked, isRetry: isRetry) {
+            MatchView(question: question, pairs: pairs, draft: draft, locked: locked, isRetry: isRetry) {
                 withAnimation(.spring(duration: 0.35)) { session.finishMatch() }
             }
         case .flashcard(let front, let back):
-            FlashcardView(front: front, back: back, draft: $session.draft, isRetry: isRetry, color: color)
+            FlashcardView(front: front, back: back, draft: draft, isRetry: isRetry, color: color)
         }
     }
 
