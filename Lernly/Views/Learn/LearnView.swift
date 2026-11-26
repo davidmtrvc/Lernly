@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 
 struct LearnView: View {
@@ -153,38 +154,64 @@ struct ChapterBanner: View {
     var number: Int
     var color: CourseColor
 
+    private var isDone: Bool { !chapter.lessons.isEmpty && chapter.completedLessonCount == chapter.lessons.count }
+    private var progress: Double {
+        chapter.lessons.isEmpty ? 0 : Double(chapter.completedLessonCount) / Double(chapter.lessons.count)
+    }
+
+    /// Kapitel-Symbol ohne eigenen Kreis (der Fortschrittsring ist schon der Kreis).
+    private var symbol: String {
+        if isDone { return "checkmark" }
+        guard let icon = chapter.icon else { return "book.closed.fill" }
+        for suffix in [".circle.fill", ".circle"] where icon.hasSuffix(suffix) {
+            let base = String(icon.dropLast(suffix.count))
+            if UIImage(systemName: base) != nil { return base }
+        }
+        return icon
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            VStack(alignment: .leading, spacing: 6) {
+        let shape = RoundedRectangle(cornerRadius: 22, style: .continuous)
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Kapitel \(number)")
-                    .font(.caption.weight(.heavy))
+                    .font(.caption.weight(.bold))
                     .textCase(.uppercase)
-                    .tracking(1)
-                    .opacity(0.8)
+                    .tracking(0.8)
+                    .foregroundStyle(color.color)
                 Text(chapter.title)
-                    .font(.title3.weight(.heavy))
+                    .font(.headline)
+                    .foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                 if let summary = chapter.summary {
                     Text(summary)
-                        .font(.subheadline)
-                        .opacity(0.9)
-                        .lineLimit(3)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
                 }
-                Text("\(chapter.completedLessonCount) von \(chapter.lessons.count) Lektionen")
-                    .font(.caption.weight(.bold))
-                    .opacity(0.8)
-                    .padding(.top, 2)
             }
-            Spacer(minLength: 0)
-            Image(systemName: chapter.completedLessonCount == chapter.lessons.count ? "checkmark.seal.fill" : (chapter.icon ?? "book.closed.fill"))
-                .font(.title)
-                .opacity(0.9)
+            Spacer(minLength: 8)
+            ZStack {
+                Circle()
+                    .stroke(color.color.opacity(0.18), lineWidth: 4)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(color.color, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                Image(systemName: symbol)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(color.color)
+            }
+            .frame(width: 46, height: 46)
+            .animation(.spring(duration: 0.5), value: progress)
         }
-        .foregroundStyle(.white)
-        .padding(18)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(color.color.gradient, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .background(color.shadow, in: RoundedRectangle(cornerRadius: 20, style: .continuous).offset(y: 4))
+        .background(color.color.opacity(0.10), in: shape)
+        .overlay(shape.strokeBorder(color.color.opacity(0.16), lineWidth: 1))
+        .accessibilityElement(children: .combine)
+        .accessibilityValue("\(chapter.completedLessonCount) von \(chapter.lessons.count) Lektionen")
     }
 }
 
