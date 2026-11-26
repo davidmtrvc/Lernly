@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Xcode: persönliche Einstellungen und Build-Ordner
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+
+# Python
+__pycache__/
+*.pyc
+
+# Persönliche Lerninhalte (Kursdateien aus eigenem Schulmaterial)
+Kurse/
+
+# Persönliche Claude-Code-Einstellungen
+.claude/settings.local.json
