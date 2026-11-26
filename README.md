@@ -1,37 +1,39 @@
 # Lernly
 
-<img src="Lernly/Assets.xcassets/AppIcon.appiconset/AppIcon.png" alt="Lernly App-Icon" width="120" align="right">
+<img src="Lernly/Assets.xcassets/AppIcon.appiconset/AppIcon.png" alt="Lernly app icon" width="120" align="right">
 
-Lernly ist eine schlanke Lern-App für das iPhone, inspiriert von Duolingo, aber ohne Ballast: Lernpfad, Streaks und Übungen, sonst nichts.
+Lernly is a lean learning app for iPhone. It is inspired by Duolingo but stripped down to a learning path, streaks and exercises, and nothing else.
 
-Die Besonderheit: **Die App enthält keine Kurse.** Du legst einen Kurs an (z. B. „Physik“) und importierst deinen eigenen Lernstoff als **`.lernly`-Datei**. Diese Dateien lässt du dir von einer beliebigen KI aus deinen Arbeitsblättern, Formelzetteln oder Notizen erstellen. Kommt neuer Stoff für denselben Kurs dazu, importierst du einfach eine weitere Datei. Die neuen Kapitel werden unten an den Kurs angehängt, dein Fortschritt bleibt erhalten.
+What makes it different: **the app ships without any courses.** You create a course (e.g. "Physics") and import your own study material as **`.lernly` files**. Any AI can generate these files from your worksheets, formula sheets or notes. When new material for the same course comes along, you import another file. Its chapters are appended to the end of the course, and your progress is kept.
 
-## Funktionen
+## Features
 
-- **Lernpfad:** Kapitel mit Lektionen auf einem geschwungenen Pfad. Innerhalb eines Kapitels werden die Lektionen nacheinander freigeschaltet, jedes Kapitel ist für sich offen.
-- **Streaks und XP:** Eine Lektion pro Tag hält den Streak. Dazu gibt es ein einstellbares Tagesziel, eine Wochenübersicht und den längsten Streak.
-- **8 Übungstypen:** Single Choice, Multiple Choice, Wahr/Falsch, Freitext (mit Toleranz für Tippfehler), Lückentext mit Wortauswahl, Reihenfolge, Paare zuordnen und Karteikarten.
-- **Lektionsablauf:** Zuerst kommen kurze Theorie-Karten, dann die Übungen. Falsche Antworten werden am Ende der Lektion wiederholt.
-- **Drei Wege zum Import:** Dateiauswahl, „Öffnen in Lernly“ (z. B. per AirDrop) oder JSON einfach einfügen. Vor dem Import zeigt die App eine Vorschau und erkennt Kapitel, die es schon gibt. Fehlerhafte Dateien meldet sie mit genauer Fehlerliste, die man sich kopieren und der KI zurückgeben kann.
-- **KI-Vorlage in der App:** unter *Profil → Einstellungen → Dateiformat & KI-Vorlage*, mit fertigem Prompt und einem Spickzettel zum Abfotografieren.
+- **Learning path:** chapters with lessons along a winding path. Lessons unlock one after another within a chapter; every chapter is open on its own.
+- **Streaks and XP:** one lesson per day keeps your streak alive. There is also an adjustable daily goal, a weekly overview and your longest streak.
+- **8 exercise types:** single choice, multiple choice, true/false, free text (tolerates typos), cloze with a word bank, ordering, matching pairs and flashcards.
+- **Lesson flow:** short theory cards first, then the exercises. Wrong answers come back at the end of the lesson.
+- **Three ways to import:** file picker, "Open in Lernly" (e.g. via AirDrop), or simply pasting the JSON. The app shows a preview before importing and detects chapters that already exist. Broken files are reported with a precise list of errors that you can copy and hand back to the AI.
+- **AI template inside the app:** under *Profil → Einstellungen → Dateiformat & KI-Vorlage* (Profile → Settings → File format & AI template), with a ready-to-use prompt and a cheat sheet you can screenshot.
 
-## Voraussetzungen
+The app's interface is in German.
 
-- Xcode 27.2 oder neuer
-- iPhone oder iPad mit iOS 27.2 oder neuer
+## Requirements
 
-## App bauen und starten
+- Xcode 27.2 or later
+- iPhone or iPad running iOS 27.2 or later
 
-1. `Lernly.xcodeproj` in Xcode öffnen.
-2. Unter *Target Lernly → Signing & Capabilities* dein eigenes **Team** wählen. Ein kostenloses Personal Team reicht.
-3. Falls Xcode meldet, dass die Bundle-ID schon vergeben ist, `com.davidmitrovic.Lernly` in eine eigene ID ändern.
-4. Das iPhone als Ziel auswählen und auf **▶︎ Run** klicken.
+## Build and run
 
-Mit einem kostenlosen Personal Team läuft die installierte App nach 7 Tagen ab. Dann einfach erneut aus Xcode installieren. Die Daten bleiben erhalten.
+1. Open `Lernly.xcodeproj` in Xcode.
+2. Under *Target Lernly → Signing & Capabilities*, select your own **Team**. A free Personal Team is enough.
+3. If Xcode reports that the bundle ID is already taken, change `com.davidmitrovic.Lernly` to an ID of your own.
+4. Select your iPhone as the run destination and click **▶︎ Run**.
 
-## Das `.lernly`-Format
+With a free Personal Team, the installed app expires after 7 days. Just install it again from Xcode; your data is kept.
 
-Eine `.lernly`-Datei ist JSON mit eigener Dateiendung:
+## The `.lernly` format
+
+A `.lernly` file is JSON with its own file extension:
 
 ```json
 {
@@ -53,46 +55,46 @@ Eine `.lernly`-Datei ist JSON mit eigener Dateiendung:
 }
 ```
 
-| `type` | Felder |
+| `type` | fields |
 |---|---|
-| `single_choice` | `question`, `options`, `answer` (Index ab 0) |
-| `multiple_choice` | `question`, `options`, `answers` (Indizes) |
+| `single_choice` | `question`, `options`, `answer` (0-based index) |
+| `multiple_choice` | `question`, `options`, `answers` (indices) |
 | `true_false` | `statement`, `answer` (`true`/`false`) |
-| `input` | `question`, `answers` (alle akzeptierten Schreibweisen) |
-| `cloze` | `text` mit `{{Lücke}}`, `distractors` |
-| `order` | `question`, `items` (in richtiger Reihenfolge) |
-| `match` | `question`, `pairs` (`[["links", "rechts"], …]`) |
+| `input` | `question`, `answers` (every accepted spelling) |
+| `cloze` | `text` with `{{gap}}`, `distractors` |
+| `order` | `question`, `items` (in the correct order) |
+| `match` | `question`, `pairs` (`[["left", "right"], …]`) |
 | `flashcard` | `front`, `back` |
 
-Jede Übung kann zusätzlich eine `explanation` haben. Ein vollständiges Beispiel liegt in [`Beispiele/Physik-Beispiel.lernly`](Beispiele/Physik-Beispiel.lernly). Die komplette Spezifikation steht in [`.claude/skills/lernly-course/references/format.md`](.claude/skills/lernly-course/references/format.md).
+Every exercise can also have an `explanation`. A complete example is in [`Beispiele/Physik-Beispiel.lernly`](Beispiele/Physik-Beispiel.lernly). The full specification is in [`.claude/skills/lernly-course/references/format.md`](.claude/skills/lernly-course/references/format.md).
 
-### Lernstoff mit einer KI umwandeln
+### Converting study material with an AI
 
-- **Beliebige KI (ChatGPT, Gemini, Claude …):** In der App unter *Einstellungen → Dateiformat & KI-Vorlage* den Prompt kopieren, deinen Lernstoff anhängen und die Antwort importieren.
-- **Coding-Agents (Claude Code, Codex …):** Der Skill [`lernly-course`](.claude/skills/lernly-course/SKILL.md) beschreibt den ganzen Ablauf und bringt einen Builder (`scripts/lernly_builder.py`) und einen Validator mit. Der Validator prüft eine Datei mit denselben Regeln wie die App:
+- **Any chat AI (ChatGPT, Gemini, Claude …):** copy the prompt from *Einstellungen → Dateiformat & KI-Vorlage* in the app, attach your study material and import the answer.
+- **Coding agents (Claude Code, Codex …):** the [`lernly-course`](.claude/skills/lernly-course/SKILL.md) skill describes the whole workflow. It comes with a builder (`scripts/lernly_builder.py`) and a validator that checks a file with the same rules as the app:
 
   ```bash
-  python3 .claude/skills/lernly-course/scripts/validate_lernly.py meine-datei.lernly
+  python3 .claude/skills/lernly-course/scripts/validate_lernly.py my-course.lernly
   ```
 
-## Projektstruktur
+## Project structure
 
 ```
 Lernly/
-├── App/            App-Einstieg und Tab-Navigation
-├── Models/         Datenmodell, Speicherung (AppStore), Parser für .lernly, KI-Vorlage
-├── Design/         Farben, Buttons, Layouts
+├── App/            app entry point and tab navigation
+├── Models/         data model, storage (AppStore), .lernly parser, AI template
+├── Design/         colors, buttons, layouts
 ├── Views/
-│   ├── Learn/      Lernpfad und Kapitel-Kacheln
-│   ├── Lesson/     Lektionsablauf und alle Übungstypen
-│   ├── Courses/    Kurse verwalten
-│   ├── Import/     Import-Vorschau und Fehleranzeige
-│   └── Profile/    Streak, Statistik, Einstellungen
-Lernly-Info.plist   Registrierung des Dateityps .lernly
-Beispiele/          Beispiel-Kursdatei
-Design/             Generator für das App-Icon
-.claude/skills/     Skill „lernly-course“ für KI-Agents
-AGENTS.md           Hinweise für KI-Agents
+│   ├── Learn/      learning path and chapter banners
+│   ├── Lesson/     lesson flow and all exercise types
+│   ├── Courses/    course management
+│   ├── Import/     import preview and error display
+│   └── Profile/    streak, statistics, settings
+Lernly-Info.plist   registers the .lernly file type
+Beispiele/          example course file
+Design/             app icon generator
+.claude/skills/     "lernly-course" skill for AI agents
+AGENTS.md           notes for AI agents
 ```
 
-Die Daten liegen lokal auf dem Gerät als JSON im Ordner *Application Support*. Es gibt keinen Server und kein Konto.
+All data is stored locally on the device as JSON in the *Application Support* folder. There is no server and no account.
