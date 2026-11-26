@@ -114,7 +114,7 @@ def check_exercise(e, path, errors, warnings):
     elif kind == "input":
         need(question, "question")
         answers = need(strings(e.get("answers")) or strings(e.get("answer")), "answer")
-        if answers and any(re.search(r"\d", a) for a in answers) and "nur die zahl" not in (question or "").lower():
+        if answers and any(re.search(r"\d", a) for a in answers) and not re.search(r"nur die (zahl|nummer|kontonummer)", (question or "").lower()):
             warnings.append(f'{path}: numerische Antwort – sag in der Frage, was eingegeben werden soll (z. B. "nur die Zahl, in m").')
     elif kind == "cloze":
         text = need(s(e.get("text")), "text")
